@@ -6,7 +6,7 @@ import (
 
 // OrderedMap implements an ordered map.
 //
-// Nil and the zero value for Stack are both empty maps.
+// Nil and the zero value for OrderedMap are both empty maps.
 type OrderedMap struct {
 	red      bool
 	left     *OrderedMap
@@ -38,6 +38,9 @@ func (m *OrderedMap) Get(key interface{}) (interface{}, bool) {
 }
 
 // Associates a value with the given key.
+//
+// Only the built-in types may be used as keys. Once a value is set within a map, all subsequent
+// operations must use the same key type.
 //
 // Complexity: O(log n) worst-case
 func (m *OrderedMap) Set(key, value interface{}) *OrderedMap {
