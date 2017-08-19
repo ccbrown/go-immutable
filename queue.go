@@ -17,8 +17,9 @@ func queueExec(f *lazyList, r *Stack, s *lazyList) *Queue {
 	return &Queue{f, r, s.PopFront()}
 }
 
-// Queue implements a first in, first out container. Nil and the zero value for Queue are both empty
-// queues.
+// Queue implements a first in, first out container.
+//
+// Nil and the zero value for Queue are both empty queues.
 type Queue struct {
 	f *lazyList
 	r *Stack
@@ -27,28 +28,28 @@ type Queue struct {
 
 // Returns true if the queue is empty.
 //
-// Complexity: O(1)
+// Complexity: O(1) worst-case
 func (q *Queue) Empty() bool {
 	return q == nil || q.f == nil
 }
 
 // Returns the item at the front of the queue.
 //
-// Complexity: O(1)
+// Complexity: O(1) worst-case
 func (q *Queue) Front() interface{} {
 	return q.f.Front()
 }
 
 // Removes the item at the front of the queue.
 //
-// Complexity: O(1)
+// Complexity: O(1) worst-case
 func (q *Queue) PopFront() *Queue {
 	return queueExec(q.f.PopFront(), q.r, q.s)
 }
 
 // Pushes an item onto the back of the queue.
 //
-// Complexity: O(1)
+// Complexity: O(1) worst-case
 func (q *Queue) PushBack(value interface{}) *Queue {
 	return queueExec(q.f, q.r.Push(value), q.s)
 }
