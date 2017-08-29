@@ -26,28 +26,28 @@ type Queue struct {
 	s *lazyList
 }
 
-// Returns true if the queue is empty.
+// Empty returns true if the queue is empty.
 //
 // Complexity: O(1) worst-case
 func (q *Queue) Empty() bool {
 	return q == nil || q.f == nil
 }
 
-// Returns the item at the front of the queue.
+// Front returns the item at the front of the queue.
 //
 // Complexity: O(1) worst-case
 func (q *Queue) Front() interface{} {
 	return q.f.Front()
 }
 
-// Removes the item at the front of the queue.
+// PopFront removes the item at the front of the queue.
 //
 // Complexity: O(1) worst-case
 func (q *Queue) PopFront() *Queue {
 	return queueExec(q.f.PopFront(), q.r, q.s)
 }
 
-// Pushes an item onto the back of the queue.
+// PushBack pushes an item onto the back of the queue.
 //
 // Complexity: O(1) worst-case
 func (q *Queue) PushBack(value interface{}) *Queue {

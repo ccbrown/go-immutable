@@ -8,28 +8,28 @@ type Stack struct {
 	bottom *Stack
 }
 
-// Returns true if the stack is empty.
+// Empty returns true if the stack is empty.
 //
 // Complexity: O(1) worst-case
 func (s *Stack) Empty() bool {
 	return s == nil || s.bottom == nil
 }
 
-// Returns the top item on the stack.
+// Peek returns the top item on the stack.
 //
 // Complexity: O(1) worst-case
 func (s *Stack) Peek() interface{} {
 	return s.top
 }
 
-// Removes the top item from the stack.
+// Pop removes the top item from the stack.
 //
 // Complexity: O(1) worst-case
 func (s *Stack) Pop() *Stack {
 	return s.bottom
 }
 
-// Places an item onto the top of the stack.
+// Push places an item onto the top of the stack.
 //
 // Complexity: O(1) worst-case
 func (s *Stack) Push(value interface{}) *Stack {
