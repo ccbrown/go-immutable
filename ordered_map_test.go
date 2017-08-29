@@ -47,20 +47,20 @@ func TestOrderedMap_KeyTypes(t *testing.T) {
 	var m *OrderedMap
 
 	for _, keys := range [][]interface{}{
-		[]interface{}{int(1), int(2)},
-		[]interface{}{int8(1), int8(2)},
-		[]interface{}{int16(1), int16(2)},
-		[]interface{}{int32(1), int32(2)},
-		[]interface{}{int64(1), int64(2)},
-		[]interface{}{uint(1), uint(2)},
-		[]interface{}{uint8(1), uint8(2)},
-		[]interface{}{uint16(1), uint16(2)},
-		[]interface{}{uint32(1), uint32(2)},
-		[]interface{}{uint64(1), uint64(2)},
-		[]interface{}{uintptr(1), uintptr(2)},
-		[]interface{}{float32(1), float32(2)},
-		[]interface{}{float64(1), float64(2)},
-		[]interface{}{"1", "2"},
+		{int(1), int(2)},
+		{int8(1), int8(2)},
+		{int16(1), int16(2)},
+		{int32(1), int32(2)},
+		{int64(1), int64(2)},
+		{uint(1), uint(2)},
+		{uint8(1), uint8(2)},
+		{uint16(1), uint16(2)},
+		{uint32(1), uint32(2)},
+		{uint64(1), uint64(2)},
+		{uintptr(1), uintptr(2)},
+		{float32(1), float32(2)},
+		{float64(1), float64(2)},
+		{"1", "2"},
 	} {
 		t.Run(fmt.Sprintf("%T", keys[0]), func(t *testing.T) {
 			assert.NotPanics(t, func() {
