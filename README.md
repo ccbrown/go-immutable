@@ -1,4 +1,4 @@
-# Immutable [![Build Status](https://travis-ci.org/ccbrown/go-immutable.svg?branch=master)](https://travis-ci.org/ccbrown/go-immutable) [![codecov](https://codecov.io/gh/ccbrown/go-immutable/branch/master/graph/badge.svg)](https://codecov.io/gh/ccbrown/go-immutable) [![Documentation](https://godoc.org/github.com/ccbrown/immutable?status.svg)](https://godoc.org/github.com/ccbrown/immutable)
+# Immutable [![Build Status](https://travis-ci.org/ccbrown/go-immutable.svg?branch=master)](https://travis-ci.org/ccbrown/go-immutable) [![codecov](https://codecov.io/gh/ccbrown/go-immutable/branch/master/graph/badge.svg)](https://codecov.io/gh/ccbrown/go-immutable) [![Documentation](https://godoc.org/github.com/ccbrown/go-immutable?status.svg)](https://godoc.org/github.com/ccbrown/go-immutable)
 
 A collection of fast, general-purpose immutable data structures.
 
