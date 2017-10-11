@@ -12,10 +12,12 @@ import (
 func TestOrderedMap(t *testing.T) {
 	var m *OrderedMap
 	assert.True(t, m.Empty())
+	assert.Equal(t, 0, m.Len())
 	require.NoError(t, m.invariant())
 
 	m = m.Set("foo", "bar")
 	assert.False(t, m.Empty())
+	assert.Equal(t, 1, m.Len())
 	require.NoError(t, m.invariant())
 
 	v, ok := m.Get("foo")
@@ -30,12 +32,14 @@ func TestOrderedMap(t *testing.T) {
 
 	m = m.Set("qux", "quux")
 	assert.False(t, m.Empty())
+	assert.Equal(t, 2, m.Len())
 	require.NoError(t, m.invariant())
 
 	v, ok = m.Get("foo")
 	assert.True(t, ok)
 	assert.Equal(t, "bar", v)
 	m = m.Delete("foo")
+	assert.Equal(t, 1, m.Len())
 	_, ok = m.Get("foo")
 	assert.False(t, ok)
 	v, ok = m.Get("qux")
@@ -146,6 +150,8 @@ func TestOrderedMap_Iteration(t *testing.T) {
 		assert.NotNil(t, e)
 		assert.Equal(t, i, e.Key())
 		assert.Equal(t, i*2, e.Value())
+		assert.Equal(t, i, e.CountLess())
+		assert.Equal(t, 1000-i-1, e.CountGreater())
 		e = e.Next()
 	}
 	assert.Nil(t, e)
@@ -169,11 +175,13 @@ func TestOrderedMap_Fuzz(t *testing.T) {
 		if rand.Intn(3) == 0 {
 			delete(ref, k)
 			m = m.Delete(k)
+			assert.Equal(t, len(ref), m.Len(), "after delete")
 			require.NoError(t, m.invariant(), "after delete")
 		} else {
 			v := rand.Int()
 			ref[k] = v
 			m = m.Set(k, v)
+			assert.Equal(t, len(ref), m.Len(), "after set")
 			require.NoError(t, m.invariant(), "after set")
 		}
 	}

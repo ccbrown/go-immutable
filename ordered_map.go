@@ -15,6 +15,7 @@ const (
 //
 // Nil and the zero value for OrderedMap are both empty maps.
 type OrderedMap struct {
+	len          int
 	color        int
 	left         *OrderedMap
 	right        *OrderedMap
@@ -28,6 +29,16 @@ type OrderedMap struct {
 // Complexity: O(1) worst-case
 func (m *OrderedMap) Empty() bool {
 	return m == nil || m.key == nil
+}
+
+// Len returns the number of elements in the map.
+//
+// Complexity: O(1) worst-case
+func (m *OrderedMap) Len() int {
+	if m == nil {
+		return 0
+	}
+	return m.len
 }
 
 // Get returns the value associated with the given key if set.
@@ -176,6 +187,7 @@ func (m *OrderedMap) delete(key interface{}) (*OrderedMap, bool) {
 
 func (m *OrderedMap) adopt(left, right *OrderedMap) *OrderedMap {
 	return &OrderedMap{
+		len:          1 + left.Len() + right.Len(),
 		color:        m.color,
 		left:         left,
 		right:        right,
@@ -197,6 +209,7 @@ func (m *OrderedMap) lessThanFuncOrEqual(key interface{}, candidate *OrderedMap)
 func (m *OrderedMap) insert(key, value interface{}) *OrderedMap {
 	if m.Empty() {
 		return &OrderedMap{
+			len:          1,
 			color:        orderedMapRed,
 			key:          key,
 			value:        value,
@@ -208,6 +221,7 @@ func (m *OrderedMap) insert(key, value interface{}) *OrderedMap {
 		return m.adopt(m.left, m.right.insert(key, value)).balanceRight()
 	}
 	return &OrderedMap{
+		len:          m.len,
 		color:        m.color,
 		left:         m.left,
 		right:        m.right,
@@ -222,8 +236,10 @@ func (m *OrderedMap) balanceLeft() *OrderedMap {
 		if m.left.color == orderedMapRed {
 			if m.left.left != nil && m.left.left.color == orderedMapRed {
 				return &OrderedMap{
+					len:   m.len,
 					color: m.color - 1,
 					left: &OrderedMap{
+						len:          m.left.left.len,
 						color:        orderedMapBlack,
 						left:         m.left.left.left,
 						right:        m.left.left.right,
@@ -232,6 +248,7 @@ func (m *OrderedMap) balanceLeft() *OrderedMap {
 						lessThanFunc: m.lessThanFunc,
 					},
 					right: &OrderedMap{
+						len:          1 + m.left.right.Len() + m.right.Len(),
 						color:        orderedMapBlack,
 						left:         m.left.right,
 						right:        m.right,
@@ -245,8 +262,10 @@ func (m *OrderedMap) balanceLeft() *OrderedMap {
 				}
 			} else if m.left.right != nil && m.left.right.color == orderedMapRed {
 				return &OrderedMap{
+					len:   m.len,
 					color: m.color - 1,
 					left: &OrderedMap{
+						len:          1 + m.left.left.Len() + m.left.right.left.Len(),
 						color:        orderedMapBlack,
 						left:         m.left.left,
 						right:        m.left.right.left,
@@ -255,6 +274,7 @@ func (m *OrderedMap) balanceLeft() *OrderedMap {
 						lessThanFunc: m.lessThanFunc,
 					},
 					right: &OrderedMap{
+						len:          1 + m.left.right.right.Len() + m.right.Len(),
 						color:        orderedMapBlack,
 						left:         m.left.right.right,
 						right:        m.right,
@@ -268,7 +288,8 @@ func (m *OrderedMap) balanceLeft() *OrderedMap {
 				}
 			}
 		} else if m.left.color == orderedMapNegativeBlack {
-			unbalancedLeft := &OrderedMap{
+			left := &OrderedMap{
+				len:          1 + m.left.left.Len() + m.left.right.left.Len(),
 				color:        orderedMapBlack,
 				left:         m.left.left.redden(),
 				right:        m.left.right.left,
@@ -276,17 +297,21 @@ func (m *OrderedMap) balanceLeft() *OrderedMap {
 				value:        m.left.value,
 				lessThanFunc: m.lessThanFunc,
 			}
+			left = left.balanceLeft()
+			right := &OrderedMap{
+				len:          1 + m.left.right.right.Len() + m.right.Len(),
+				color:        orderedMapBlack,
+				left:         m.left.right.right,
+				right:        m.right,
+				key:          m.key,
+				value:        m.value,
+				lessThanFunc: m.lessThanFunc,
+			}
 			return &OrderedMap{
-				color: orderedMapBlack,
-				left:  unbalancedLeft.balanceLeft(),
-				right: &OrderedMap{
-					color:        orderedMapBlack,
-					left:         m.left.right.right,
-					right:        m.right,
-					key:          m.key,
-					value:        m.value,
-					lessThanFunc: m.lessThanFunc,
-				},
+				len:          1 + left.Len() + right.Len(),
+				color:        orderedMapBlack,
+				left:         left,
+				right:        right,
 				key:          m.left.right.key,
 				value:        m.left.right.value,
 				lessThanFunc: m.lessThanFunc,
@@ -301,8 +326,10 @@ func (m *OrderedMap) balanceRight() *OrderedMap {
 		if m.right.color == orderedMapRed {
 			if m.right.left != nil && m.right.left.color == orderedMapRed {
 				return &OrderedMap{
+					len:   m.len,
 					color: m.color - 1,
 					left: &OrderedMap{
+						len:          1 + m.left.Len() + m.right.left.left.Len(),
 						color:        orderedMapBlack,
 						left:         m.left,
 						right:        m.right.left.left,
@@ -311,6 +338,7 @@ func (m *OrderedMap) balanceRight() *OrderedMap {
 						lessThanFunc: m.lessThanFunc,
 					},
 					right: &OrderedMap{
+						len:          1 + m.right.left.right.Len() + m.right.right.Len(),
 						color:        orderedMapBlack,
 						left:         m.right.left.right,
 						right:        m.right.right,
@@ -324,8 +352,10 @@ func (m *OrderedMap) balanceRight() *OrderedMap {
 				}
 			} else if m.right.right != nil && m.right.right.color == orderedMapRed {
 				return &OrderedMap{
+					len:   m.len,
 					color: m.color - 1,
 					left: &OrderedMap{
+						len:          1 + m.left.Len() + m.right.left.Len(),
 						color:        orderedMapBlack,
 						left:         m.left,
 						right:        m.right.left,
@@ -334,6 +364,7 @@ func (m *OrderedMap) balanceRight() *OrderedMap {
 						lessThanFunc: m.lessThanFunc,
 					},
 					right: &OrderedMap{
+						len:          m.right.right.len,
 						color:        orderedMapBlack,
 						left:         m.right.right.left,
 						right:        m.right.right.right,
@@ -347,7 +378,17 @@ func (m *OrderedMap) balanceRight() *OrderedMap {
 				}
 			}
 		} else if m.right.color == orderedMapNegativeBlack {
-			unbalancedRight := &OrderedMap{
+			left := &OrderedMap{
+				len:          1 + m.left.Len() + m.right.left.left.Len(),
+				color:        orderedMapBlack,
+				left:         m.left,
+				right:        m.right.left.left,
+				key:          m.key,
+				value:        m.value,
+				lessThanFunc: m.lessThanFunc,
+			}
+			right := &OrderedMap{
+				len:          1 + m.right.left.right.Len() + m.right.right.Len(),
 				color:        orderedMapBlack,
 				left:         m.right.left.right,
 				right:        m.right.right.redden(),
@@ -355,17 +396,12 @@ func (m *OrderedMap) balanceRight() *OrderedMap {
 				value:        m.right.value,
 				lessThanFunc: m.lessThanFunc,
 			}
+			right = right.balanceRight()
 			return &OrderedMap{
-				color: orderedMapBlack,
-				left: &OrderedMap{
-					color:        orderedMapBlack,
-					left:         m.left,
-					right:        m.right.left.left,
-					key:          m.key,
-					value:        m.value,
-					lessThanFunc: m.lessThanFunc,
-				},
-				right:        unbalancedRight.balanceRight(),
+				len:          1 + left.Len() + right.Len(),
+				color:        orderedMapBlack,
+				left:         left,
+				right:        right,
 				key:          m.right.left.key,
 				value:        m.right.left.value,
 				lessThanFunc: m.lessThanFunc,
@@ -381,6 +417,7 @@ func (m *OrderedMap) remove() *OrderedMap {
 	if !m.left.Empty() && !m.right.Empty() {
 		left, removed := m.left.removeMax()
 		reduced := &OrderedMap{
+			len:          m.len - 1,
 			color:        m.color,
 			left:         left,
 			right:        m.right,
@@ -426,6 +463,7 @@ func (m *OrderedMap) redden() *OrderedMap {
 func (m *OrderedMap) bubble() *OrderedMap {
 	if (m.left != nil && m.left.color == orderedMapDoubleBlack) || (m.right != nil && m.right.color == orderedMapDoubleBlack) {
 		unbalanced := &OrderedMap{
+			len:          m.len,
 			color:        m.color + 1,
 			left:         m.left.redden(),
 			right:        m.right.redden(),
@@ -509,6 +547,32 @@ func (e *OrderedMapElement) Prev() *OrderedMapElement {
 		}
 	}
 	return nil
+}
+
+// CountLess returns the number of elements that are less than this element.
+//
+// Complexity: O(log n) worst-case
+func (e *OrderedMapElement) CountLess() int {
+	count := e.element.left.Len()
+	for l := e.lineage; !l.Empty(); l = l.Pop() {
+		if e.element.lessThanFunc(l.Peek().(*OrderedMap).key, e.element.key) {
+			count += 1 + l.Peek().(*OrderedMap).left.Len()
+		}
+	}
+	return count
+}
+
+// CountGreater returns the number of elements that are greater than this element.
+//
+// Complexity: O(log n) worst-case
+func (e *OrderedMapElement) CountGreater() int {
+	count := e.element.right.Len()
+	for l := e.lineage; !l.Empty(); l = l.Pop() {
+		if e.element.lessThanFunc(e.element.key, l.Peek().(*OrderedMap).key) {
+			count += 1 + l.Peek().(*OrderedMap).right.Len()
+		}
+	}
+	return count
 }
 
 func builtInLessThan(value interface{}) func(interface{}, interface{}) bool {
