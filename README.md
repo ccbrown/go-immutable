@@ -2,6 +2,8 @@
 
 A collection of fast, general-purpose immutable data structures.
 
+This package has been used in production at multiple companies, is stable, and is probably feature-complete.
+
 ## Data Structures
 
 All data structures are fully persistent and safe for concurrent use. Unless otherwise noted, time complexities are worst-case (not amortized).
