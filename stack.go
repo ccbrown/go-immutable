@@ -3,40 +3,40 @@ package immutable
 // Stack implements a last in, first out container.
 //
 // Nil and the zero value for Stack are both empty stacks.
-type Stack struct {
-	top    interface{}
-	bottom *Stack
+type Stack[T any] struct {
+	top    T
+	bottom *Stack[T]
 }
 
 // Empty returns true if the stack is empty.
 //
 // Complexity: O(1) worst-case
-func (s *Stack) Empty() bool {
+func (s *Stack[T]) Empty() bool {
 	return s == nil || s.bottom == nil
 }
 
 // Peek returns the top item on the stack.
 //
 // Complexity: O(1) worst-case
-func (s *Stack) Peek() interface{} {
+func (s *Stack[T]) Peek() T {
 	return s.top
 }
 
 // Pop removes the top item from the stack.
 //
 // Complexity: O(1) worst-case
-func (s *Stack) Pop() *Stack {
+func (s *Stack[T]) Pop() *Stack[T] {
 	return s.bottom
 }
 
 // Push places an item onto the top of the stack.
 //
 // Complexity: O(1) worst-case
-func (s *Stack) Push(value interface{}) *Stack {
+func (s *Stack[T]) Push(value T) *Stack[T] {
 	if s == nil {
-		s = &Stack{}
+		s = &Stack[T]{}
 	}
-	return &Stack{
+	return &Stack[T]{
 		top:    value,
 		bottom: s,
 	}

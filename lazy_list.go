@@ -4,25 +4,25 @@ import (
 	"sync"
 )
 
-type lazyList struct {
-	value      interface{}
-	lazyNext   func() *lazyList
-	next       *lazyList
+type lazyList[T any] struct {
+	value      T
+	lazyNext   func() *lazyList[T]
+	next       *lazyList[T]
 	evaluation sync.Once
 }
 
-func newLazyList(front interface{}, next func() *lazyList) *lazyList {
-	return &lazyList{
+func newLazyList[T any](front T, next func() *lazyList[T]) *lazyList[T] {
+	return &lazyList[T]{
 		value:    front,
 		lazyNext: next,
 	}
 }
 
-func (l *lazyList) Front() interface{} {
+func (l *lazyList[T]) Front() T {
 	return l.value
 }
 
-func (l *lazyList) PopFront() *lazyList {
+func (l *lazyList[T]) PopFront() *lazyList[T] {
 	l.evaluation.Do(func() {
 		if l.lazyNext != nil {
 			l.next = l.lazyNext()
@@ -32,8 +32,8 @@ func (l *lazyList) PopFront() *lazyList {
 	return l.next
 }
 
-func (l *lazyList) PushFront(value interface{}) *lazyList {
-	return &lazyList{
+func (l *lazyList[T]) PushFront(value T) *lazyList[T] {
+	return &lazyList[T]{
 		value: value,
 		next:  l,
 	}
