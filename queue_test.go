@@ -8,7 +8,7 @@ import (
 )
 
 func TestQueue(t *testing.T) {
-	var q Queue
+	var q Queue[string]
 	assert.True(t, q.Empty())
 	q2 := q.PushBack("foo")
 	assert.True(t, q.Empty())
@@ -24,31 +24,33 @@ func TestQueue(t *testing.T) {
 	assert.True(t, q4.PopFront().PopFront().PopFront().Empty())
 }
 
-var queueResult *Queue
+var stringQueueResult *Queue[string]
 
 func BenchmarkQueue_PushBack(b *testing.B) {
 	for _, n := range []int{100, 10000, 1000000} {
-		q := &Queue{}
+		q := &Queue[string]{}
 		for i := 0; i < n; i++ {
 			q = q.PushBack("foo")
 		}
 		b.Run(fmt.Sprintf("n=%v", n), func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				queueResult = q.PushBack("foo")
+				stringQueueResult = q.PushBack("foo")
 			}
 		})
 	}
 }
 
+var intQueueResult *Queue[int]
+
 func BenchmarkQueue_PopFront(b *testing.B) {
 	for _, n := range []int{100, 10000, 200000} {
-		q := &Queue{}
+		q := &Queue[int]{}
 		for i := 0; i < n; i++ {
 			q = q.PushBack(i)
 		}
 		b.Run(fmt.Sprintf("n=%v", n), func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				queueResult = q.PopFront()
+				intQueueResult = q.PopFront()
 			}
 		})
 	}

@@ -10,7 +10,7 @@ import (
 )
 
 func TestOrderedMap(t *testing.T) {
-	var m *OrderedMap
+	var m *OrderedMap[string, string]
 	assert.True(t, m.Empty())
 	assert.Equal(t, 0, m.Len())
 	require.NoError(t, m.invariant())
@@ -47,43 +47,8 @@ func TestOrderedMap(t *testing.T) {
 	assert.Equal(t, "quux", v)
 }
 
-func TestOrderedMap_KeyTypes(t *testing.T) {
-	var m *OrderedMap
-
-	for _, keys := range [][]interface{}{
-		{int(1), int(2)},
-		{int8(1), int8(2)},
-		{int16(1), int16(2)},
-		{int32(1), int32(2)},
-		{int64(1), int64(2)},
-		{uint(1), uint(2)},
-		{uint8(1), uint8(2)},
-		{uint16(1), uint16(2)},
-		{uint32(1), uint32(2)},
-		{uint64(1), uint64(2)},
-		{uintptr(1), uintptr(2)},
-		{float32(1), float32(2)},
-		{float64(1), float64(2)},
-		{"1", "2"},
-	} {
-		t.Run(fmt.Sprintf("%T", keys[0]), func(t *testing.T) {
-			assert.NotPanics(t, func() {
-				kv := m.Set(keys[0], 1).Set(keys[1], 2).Min()
-				assert.Equal(t, keys[0], kv.Key())
-				assert.Equal(t, keys[1], kv.Next().Key())
-			})
-		})
-	}
-
-	t.Run("struct", func(t *testing.T) {
-		assert.Panics(t, func() {
-			m.Set(struct{}{}, 1)
-		})
-	})
-}
-
 func TestOrderedMap_Delete(t *testing.T) {
-	var m *OrderedMap
+	var m *OrderedMap[int, int]
 	for i := 0; i < 50; i++ {
 		m = m.Set(i, i)
 		require.NoError(t, m.invariant())
@@ -104,7 +69,7 @@ func TestOrderedMap_Delete(t *testing.T) {
 }
 
 func TestOrderedMap_MinAfter(t *testing.T) {
-	var m *OrderedMap
+	var m *OrderedMap[int, int]
 	for i := 0; i < 40; i += 2 {
 		m = m.Set(i, i)
 		assert.Nil(t, m.MinAfter(i))
@@ -121,7 +86,7 @@ func TestOrderedMap_MinAfter(t *testing.T) {
 }
 
 func TestOrderedMap_MaxBefore(t *testing.T) {
-	var m *OrderedMap
+	var m *OrderedMap[int, int]
 	for i := 0; i < 40; i += 2 {
 		m = m.Set(i, i)
 		assert.Nil(t, m.MaxBefore(0))
@@ -138,7 +103,7 @@ func TestOrderedMap_MaxBefore(t *testing.T) {
 }
 
 func TestOrderedMap_Iteration(t *testing.T) {
-	var m *OrderedMap
+	var m *OrderedMap[int, int]
 	assert.Nil(t, m.Min())
 
 	for i := 0; i < 1000; i++ {
@@ -168,7 +133,7 @@ func TestOrderedMap_Iteration(t *testing.T) {
 
 func TestOrderedMap_Fuzz(t *testing.T) {
 	ref := make(map[int]int)
-	var m *OrderedMap
+	var m *OrderedMap[int, int]
 	assert.True(t, m.Empty())
 	for i := 0; i < 100000; i++ {
 		k := rand.Intn(500)
@@ -196,7 +161,7 @@ var orderedMapValueResult interface{}
 
 func BenchmarkOrderedMap_Get(b *testing.B) {
 	for _, n := range []int{100, 10000, 1000000} {
-		m := &OrderedMap{}
+		m := &OrderedMap[int, string]{}
 		for i := 0; i < n; i++ {
 			m = m.Set(i, "foo")
 		}
@@ -209,11 +174,11 @@ func BenchmarkOrderedMap_Get(b *testing.B) {
 	}
 }
 
-var orderedMapResult *OrderedMap
+var orderedMapResult *OrderedMap[int, string]
 
 func BenchmarkOrderedMap_Set(b *testing.B) {
 	for _, n := range []int{100, 10000, 1000000} {
-		m := &OrderedMap{}
+		m := &OrderedMap[int, string]{}
 		for i := 0; i < n; i++ {
 			m = m.Set(i, "foo")
 		}
@@ -225,7 +190,7 @@ func BenchmarkOrderedMap_Set(b *testing.B) {
 	}
 }
 
-func (m *OrderedMap) invariant() error {
+func (m *OrderedMap[K, V]) invariant() error {
 	_, err := m.invariantInfo()
 	return err
 }
@@ -234,21 +199,18 @@ type orderedMapInvariantInfo struct {
 	BlackDepth int
 }
 
-func (m *OrderedMap) invariantInfo() (*orderedMapInvariantInfo, error) {
+func (m *OrderedMap[K, V]) invariantInfo() (*orderedMapInvariantInfo, error) {
 	if m == nil {
 		return &orderedMapInvariantInfo{
 			BlackDepth: 0,
 		}, nil
 	}
 
-	if m == doubleBlackLeaf {
+	if m.color == orderedMapDoubleBlack && m.len == 0 {
 		return nil, fmt.Errorf("double black leaf")
 	}
 	if m.color != orderedMapRed && m.color != orderedMapBlack {
 		return nil, fmt.Errorf("invalid node color: %v", m.color)
-	}
-	if m.key == nil {
-		return nil, fmt.Errorf("nil key")
 	}
 	if m.color == orderedMapRed && ((m.left != nil && m.left.color == orderedMapRed) || (m.right != nil && m.right.color == orderedMapRed)) {
 		return nil, fmt.Errorf("red node has red child")

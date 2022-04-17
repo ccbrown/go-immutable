@@ -7,7 +7,7 @@ import (
 )
 
 func TestStack(t *testing.T) {
-	var s Stack
+	var s Stack[string]
 	assert.True(t, s.Empty())
 	s2 := s.Push("foo")
 	assert.True(t, s.Empty())
